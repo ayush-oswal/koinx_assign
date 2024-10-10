@@ -13,7 +13,7 @@ app.use(express.json());
 dotenv.config()
 
 
-// @ts-ignore
+
 app.get('/stats', async (req: Request, res: Response) => {
     try {
         const { coin } = req.query;
@@ -55,7 +55,7 @@ app.get('/stats', async (req: Request, res: Response) => {
     }
 });
 
-//@ts-ignore
+
 app.get('/deviation', async (req: Request, res: Response) => {
     try {
         const { coin } = req.query;
