@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: ./server   # Path to the server folder
+      dockerfile: Dockerfile  # The Dockerfile inside the server folder
+    ports:
+      - "3000:3000"  # Expose port 3000 for the server
+    restart: always  # Restart if it crashes
+
+  worker:
+    build:
+      context: ./worker   # Path to the worker folder
+      dockerfile: Dockerfile  # The Dockerfile inside the worker folder
+    restart: always  # Restart if it crashes
