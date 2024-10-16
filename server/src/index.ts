@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 import ConnectDB from "./database";
 import dotenv from "dotenv"
@@ -13,50 +13,51 @@ app.use(express.json());
 dotenv.config()
 
 
+app.get('/stats', (req: Request, res: Response) => {
+    (async () => {
+        try {
+            const { coin } = req.query;
 
-app.get('/stats', async (req: Request, res: Response) => {
-    try {
-        const { coin } = req.query;
-
-        if (!coin || (coin !== 'matic-network' && coin !== 'ethereum' && coin !== 'bitcoin')) {
-            return res.status(400).json({ error: "Invalid coin type" });
-        }
-
-        await ConnectDB();
-
-        let data;
-
-        switch (coin) {
-            case 'matic-network':
-                data = await Matic.findOne().sort({ createdAt: -1 });
-                break;
-            case 'ethereum':
-                data = await Ethereum.findOne().sort({ createdAt: -1 });
-                break;
-            case 'bitcoin':
-                data = await Bitcoin.findOne().sort({ createdAt: -1 });
-                break;
-            default:
+            if (!coin || (coin !== 'matic-network' && coin !== 'ethereum' && coin !== 'bitcoin')) {
                 return res.status(400).json({ error: "Invalid coin type" });
+            }
+
+            await ConnectDB();
+
+            let data;
+            switch (coin) {
+                case 'matic-network':
+                    data = await Matic.findOne().sort({ createdAt: -1 });
+                    break;
+                case 'ethereum':
+                    data = await Ethereum.findOne().sort({ createdAt: -1 });
+                    break;
+                case 'bitcoin':
+                    data = await Bitcoin.findOne().sort({ createdAt: -1 });
+                    break;
+                default:
+                    return res.status(400).json({ error: "Invalid coin type" });
+            }
+
+            if (!data) {
+                return res.status(404).json({ error: "No data found for the specified coin" });
+            }
+
+            return res.json({
+                price: data.current_price,
+                marketCap: data.market_cap,
+                change_24h: data.change_24h
+            });
+
+        } catch (error) {
+            return res.status(500).json({ error: "Internal server error" });
         }
-
-        if (!data) {
-            return res.status(404).json({ error: "No data found for the specified coin" });
-        }
-
-        return res.json({
-            price: data.current_price,
-            marketCap: data.market_cap,
-            change_24h: data.change_24h
-        });
-
-    } catch (error) {
-        return res.status(500).json({ error: "Internal server error" });
-    }
+    })();
 });
 
 
-app.get('/deviation', async (req: Request, res: Response) => {
+app.get('/deviation', (req: Request, res: Response) => {
+    (async () => {
     try {
         const { coin } = req.query;
 
@@ -95,6 +96,7 @@ app.get('/deviation', async (req: Request, res: Response) => {
     } catch (error) {
         return res.status(500).json({ error: "Internal server error" });
     }
+})();
 });
 
 app.listen(3000, () => {
